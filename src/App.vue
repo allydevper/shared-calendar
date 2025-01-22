@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <div class="bg-blue-500 text-white p-4">
-    <h1 class="text-2xl font-bold">Hello, Tailwind + Vue + TypeScript!</h1>
+  <div class="flex items-center justify-center h-screen">
+    <div class="flex items-center border-2 border-black">
+      <!-- Input del nuevo evento -->
+      <input type="text" placeholder="Nuevo Evento" class="input-box px-4 py-2 w-60 focus:outline-none">
+      <!-- Botón de Crear -->
+      <button class="create-button px-6 py-2 font-bold">Crear</button>
+    </div>
   </div>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+
+.input-box {
+  border: 2px solid black;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.create-button {
+  background-color: black;
+  color: white;
+  border: 2px solid black;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.create-button:hover {
+  background-color: white;
+  color: black;
 }
+
+
 </style>
