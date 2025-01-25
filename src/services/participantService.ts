@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ParticipantModel } from '../models/participant.model';
+import type { ParticipantModel } from '../models/ParticipantModel';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/participants/`;
 

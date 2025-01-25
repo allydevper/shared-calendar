@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AvailabilityModel } from '../models/availability.model';
+import type { AvailabilityModel } from '../models/AvailabilityModel';
 
 const API_URL = `${import.meta.env.VITE_API_URL}/availability/`;
 
