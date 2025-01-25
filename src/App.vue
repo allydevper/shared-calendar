@@ -3,43 +3,39 @@ import { ref } from 'vue';
 import { createEvent } from './services/EventService';
 import type { EventModel } from './models/EventModel';
 import { useToast } from "vue-toastification";
+import { useRouter } from 'vue-router';
 
 const newEvent = ref('');
 const toast = useToast();
+const router = useRouter();
 
 const handleCreateEvent = async () => {
   if (newEvent.value.trim() !== '') {
     try {
-
       const event: EventModel = {
         name: newEvent.value,
         description: '',
       };
 
-      await createEvent(event);
+      const result = await createEvent(event);
+      const uid = result.id;
+      console.log(uid);
 
       toast.success('Evento creado con éxito', {
-        timeout: 20000,
-        closeOnClick: true,
         toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
-        bodyClassName: ''
       });
+
+      router.push({ name: 'EventDetail', params: { uid } });
 
     } catch (error) {
       console.error('Error al crear el evento:', error);
       toast.error(error, {
-        timeout: 20000,
-        closeOnClick: true,
         toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
-        bodyClassName: ''
       });
     }
   } else {
     toast.error('El campo de evento no puede estar vacío', {
-      timeout: 20000,
-      closeOnClick: true,
       toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
-      bodyClassName: ''
     });
   }
 };
@@ -55,6 +51,7 @@ const handleCreateEvent = async () => {
       </button>
     </div>
   </div>
+  <router-view></router-view>
 </template>
 
 <style scoped></style>
