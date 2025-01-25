@@ -6,6 +6,7 @@ import './assets/tailwind.css'
 import Toast, { POSITION, type PluginOptions } from 'vue-toastification'
 import EventDetail from './components/EventDetail.vue'
 import { createWebHistory, createRouter } from 'vue-router'
+import Home from './components/Home.vue'
 
 const options: PluginOptions = {
     timeout: 3000,
@@ -16,8 +17,9 @@ const options: PluginOptions = {
 };
 
 const routes = [
-    { path: '/', component: App },
-    { path: '/event/:uid', name: 'EventDetail', component: EventDetail, props: true }
+    { path: '/', name: 'Home', component: Home },
+    { path: '/event/:uid', name: 'EventDetail', component: EventDetail },
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: Home }
 ];
 
 const router = createRouter({
