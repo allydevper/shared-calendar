@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        "vtd-primary": colors.gray,
+        "vtd-primary": colors.slate,
       },
     },
   },
