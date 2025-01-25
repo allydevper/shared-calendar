@@ -44,7 +44,7 @@ console.log(props.uid);
     <div class="max-w-4xl mx-auto p-6 bg-white text-black shadow-md border-4 border-black">
       <div class="flex items-center justify-between space-x-4 mb-4">
         <vue-tailwind-datepicker v-model="startDate" :formatter="formatter" :i18n="i18n" :options="options"
-          class="border-4 border-black px-4 py-2 w-full focus:outline-none focus:ring focus:ring-blue-300" />
+          input-classes="border-4 border-black px-4 py-2 w-full focus:outline-none focus:ring focus:ring-blue-300" />
         <button
           class="border-4 border-black px-6 py-2 bg-black text-white shadow hover:bg-white hover:text-black font-bold">Agregar</button>
       </div>
