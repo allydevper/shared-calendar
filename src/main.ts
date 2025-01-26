@@ -27,5 +27,9 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
 });
+const app = createApp(App);
 
-createApp(App).use(Toast, options).use(VueTailwindDatepicker).use(router).mount('#app');
+app.use(router);
+app.use(VueTailwindDatepicker);
+app.use(Toast, options);
+app.mount('#app');

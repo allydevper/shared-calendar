@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
 import { createAvailability } from '../services/AvailabilityService';
 import type { AvailabilityModel } from '../models/AvailabilityModel';
@@ -8,8 +8,34 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "vue-toastification";
+import { getEventById } from '../services/EventService';
 
 dayjs.extend(customParseFormat);
+
+const route = useRoute();
+const router = useRouter();
+let uid = route.params.uid as string;
+
+const loading = ref(false);
+watchEffect(async () => {
+  if (uid) {
+    try {
+      loading.value = true;
+      const event = await getEventById(uid);
+
+      if (event) {
+        console.log(event);
+      } else {
+        console.log('No se encontró el evento');
+      }
+    } catch (err) {
+      router.push({ name: 'Home' });
+    } finally {
+      loading.value = false;
+    }
+  }
+});
+
 const toast = useToast();
 
 let user = localStorage.getItem('userId');
@@ -17,9 +43,6 @@ if (!user) {
   user = uuidv4();
   localStorage.setItem('userId', user);
 }
-
-const route = useRoute();
-const uid = route.params.uid as string;
 
 const eventDate = ref('');
 const formatter = ref({
@@ -89,7 +112,8 @@ const handleAddDate = async () => {
 
 <template>
   <div class="flex items-center justify-center h-screen">
-    <div class="max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black">
+    <div
+      :class="['max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black', { 'opacity-50 cursor-not-allowed': loading }]">
       <div class="flex items-center justify-between space-x-4 mb-4">
         <vue-tailwind-datepicker v-model="eventDate" :formatter="formatter" :i18n="i18n" :options="options"
           placeholder="Selecciona una fecha" :disable-date="dDate"
@@ -99,7 +123,7 @@ const handleAddDate = async () => {
       </div>
 
       <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1 bg-black text-white p-4 border-4 border-black" style="min-width: 250px;">
+        <div class="col-span-1 bg-black text-white p-4 border-4 border-black min-w-[250px]">
           <h3 class="text-lg font-bold mb-6">Mis Fechas</h3>
           <ul class="space-y-6">
             <li class="mb-4">
