@@ -35,13 +35,9 @@ watchEffect(async () => {
       if (!event) {
         throw new Error('No se encontró el evento');
       }
-      try {
-
-        const availability = await getEventByIdParticipant(user);
-        datesList.push(...availability);
-      } catch (ex) {
-        console.error('Error al obtener las fechas disponibles:', ex);
-      }
+      
+      const availability = await getEventByIdParticipant(user);
+      datesList.push(...availability);
     } catch (err) {
       console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
