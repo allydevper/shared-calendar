@@ -16,8 +16,10 @@ dayjs.extend(customParseFormat);
 const route = useRoute();
 const router = useRouter();
 const datesList = reactive<AvailabilityModel[]>([]);
+const allDatesList = reactive<AvailabilityModel[]>([]);
 const commonDatesList = reactive<AvailabilityModel[]>([]);
 const loading = ref(false);
+const participants = ref(0);
 
 let uid = route.params.uid as string;
 
@@ -39,9 +41,23 @@ watchEffect(async () => {
       }
 
       const availability = await getAvailabilityByEventId(uid);
+      allDatesList.push(...availability);
       datesList.push(...availability.filter(f => f.participant_id == user));
 
-      commonDatesList.push(...getCommonDateList(availability));
+      const participantsGroup = availability.reduce((acc, current) => {
+        if (!acc[current.participant_id]) {
+          acc[current.participant_id] = [];
+        }
+        acc[current.participant_id].push(current);
+        return acc;
+      }, {} as Record<string, AvailabilityModel[]>);
+
+      participants.value = Object.keys(participantsGroup).length;
+
+      if (participants.value > 1) {
+        commonDatesList.push(...getCommonDateList(availability));
+      }
+
     } catch (err) {
       console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
@@ -129,6 +145,8 @@ const handleDeleteDate = async (dateId?: string) => {
   try {
     await deleteAvailability(dateId);
     datesList.splice(0, datesList.length, ...datesList.filter(date => date.id !== dateId));
+    allDatesList.splice(0, allDatesList.length, ...allDatesList.filter(date => date.id !== dateId));
+    commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList(allDatesList));
     toast.success('Rango de fechas eliminados con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
@@ -188,7 +206,9 @@ const handleDeleteDate = async (dateId?: string) => {
 
         <div class="col-span-2 p-4 bg-white border-4 border-black">
           <div class="flex justify-between items-center mb-6">
-            <h3 v-if="commonDatesList.length > 0" class="text-lg font-bold">Fechas disponibles del {{ currentYear }}</h3>
+            <h3 v-if="commonDatesList.length > 0" class="text-lg font-bold">Fechas disponibles del {{ currentYear }} de
+              {{ participants }} participantes
+            </h3>
             <h3 v-if="commonDatesList.length == 0" class="text-lg font-bold">No hay relacionadas</h3>
             <!-- <button aria-label="Recargar fechas"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">

@@ -13,29 +13,26 @@ export const getCommonDateList = (allAvailabilities: AvailabilityModel[]): Avail
             return acc;
         }, {} as Record<string, AvailabilityModel[]>);
 
+        const mergedPerParticipant = Object.values(participantsAvailabilities).map(avails => mergeRanges(avails));
 
-    const mergedPerParticipant = Object.values(participantsAvailabilities).map(avails => mergeRanges(avails));
-
-
-    if (mergedPerParticipant.length === 0) return [];
-
-    let commonRanges = mergedPerParticipant[0];
-    for (let i = 1; i < mergedPerParticipant.length; i++) {
-        commonRanges = intersectRanges(commonRanges, mergedPerParticipant[i]);
-        if (commonRanges.length === 0) break;
-    }
-
-    return commonRanges;
+        if (mergedPerParticipant.length === 0) return [];
+    
+        let commonRanges = mergedPerParticipant[0];
+        for (let i = 1; i < mergedPerParticipant.length; i++) {
+            commonRanges = intersectRanges(commonRanges, mergedPerParticipant[i]);
+            if (commonRanges.length === 0) break;
+        }
+    
+        return commonRanges;
 }
-
 
 const mergeRanges = (ranges: AvailabilityModel[]): AvailabilityModel[] => {
     if (ranges.length === 0) return [];
 
-    const sorted = [...ranges].sort((a, b) => 
+    const sorted = [...ranges].sort((a, b) =>
         dayjs(a.start_date).valueOf() - dayjs(b.start_date).valueOf()
     );
-    
+
     const merged: AvailabilityModel[] = [sorted[0]];
 
     for (let i = 1; i < sorted.length; i++) {
@@ -44,10 +41,10 @@ const mergeRanges = (ranges: AvailabilityModel[]): AvailabilityModel[] => {
 
         if (dayjs(current.start_date).isSameOrBefore(dayjs(lastMerged.end_date))) {
 
-            const newEnd = dayjs(current.end_date).isAfter(lastMerged.end_date) 
-                ? current.end_date 
+            const newEnd = dayjs(current.end_date).isAfter(lastMerged.end_date)
+                ? current.end_date
                 : lastMerged.end_date;
-                
+
             merged[merged.length - 1] = {
                 ...lastMerged,
                 end_date: newEnd,
@@ -78,6 +75,6 @@ const intersectRanges = (rangesA: AvailabilityModel[], rangesB: AvailabilityMode
             }
         }
     }
-    
+
     return mergeRanges(result);
 }
