@@ -35,9 +35,13 @@ watchEffect(async () => {
       if (!event) {
         throw new Error('No se encontró el evento');
       }
+      try {
 
-      const availability = await getEventByIdParticipant(user);
-      datesList.push(...availability);
+        const availability = await getEventByIdParticipant(user);
+        datesList.push(...availability);
+      } catch (ex) {
+        console.error('Error al obtener las fechas disponibles:', ex);
+      }
     } catch (err) {
       console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
@@ -49,7 +53,10 @@ watchEffect(async () => {
 
 const toast = useToast();
 
-const eventDate = ref('');
+const eventDate = ref({
+  startDate: "",
+  endDate: "",
+});
 const formatter = ref({
   date: 'DD/MM/YYYY',
   month: 'MMM',
@@ -81,10 +88,9 @@ const handleAddDate = async () => {
   if (!eventDate.value) {
     return;
   }
-
-  const [startDate, endDate] = eventDate.value.split('~').map(date => dayjs(date.trim(), 'DD/MM/YYYY').toDate());
-  const dateIni = startDate;
-  const dateEnd = endDate;
+  const { startDate, endDate } = eventDate.value;
+  const dateIni = dayjs(startDate, 'DD/MM/YYYY').toDate();
+  const dateEnd = dayjs(endDate, 'DD/MM/YYYY').toDate();
 
   try {
     const newAvailability: AvailabilityModel = {
@@ -95,7 +101,10 @@ const handleAddDate = async () => {
     };
 
     const availability = await createAvailability(newAvailability);
-    eventDate.value = '';
+    eventDate.value = {
+      startDate: "",
+      endDate: "",
+    }
     datesList.push(availability);
     toast.success('Rango de fechas agregadas con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
