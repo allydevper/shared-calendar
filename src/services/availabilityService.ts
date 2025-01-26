@@ -18,6 +18,11 @@ export const getAvailabilityById = async (availabilityId: string): Promise<Avail
     return response.data;
 };
 
+export const getEventByIdParticipant = async (participantId: string): Promise<AvailabilityModel[]> => {
+    const response = await axios.get<AvailabilityModel[]>(`${API_URL}participant/${participantId}`);
+    return response.data;
+};
+
 export const updateAvailability = async (availabilityId: string, availability: AvailabilityModel): Promise<AvailabilityModel> => {
     const response = await axios.put<AvailabilityModel>(`${API_URL}${availabilityId}`, availability);
     return response.data;

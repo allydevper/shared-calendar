@@ -18,11 +18,6 @@ export const getEventById = async (eventId: string): Promise<EventModel> => {
     return response.data;
 };
 
-export const getEventByIdParticipant = async (participantId: string): Promise<EventModel> => {
-    const response = await axios.get<EventModel>(`${API_URL}participant/${participantId}`);
-    return response.data;
-};
-
 export const updateEvent = async (eventId: string, event: EventModel): Promise<EventModel> => {
     const response = await axios.put<EventModel>(`${API_URL}${eventId}`, event);
     return response.data;

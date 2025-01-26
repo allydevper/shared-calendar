@@ -2,7 +2,7 @@
 import { reactive, ref, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
-import { createAvailability } from '../services/AvailabilityService';
+import { createAvailability, deleteAvailability, getEventByIdParticipant } from '../services/AvailabilityService';
 import type { AvailabilityModel } from '../models/AvailabilityModel';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -19,7 +19,14 @@ const loading = ref(false);
 
 let uid = route.params.uid as string;
 
+let user = localStorage.getItem('userId') as string;
+
 watchEffect(async () => {
+  if (!user) {
+    user = uuidv4();
+    localStorage.setItem('userId', user);
+  }
+
   if (uid) {
     try {
       loading.value = true;
@@ -28,6 +35,9 @@ watchEffect(async () => {
       if (!event) {
         throw new Error('No se encontró el evento');
       }
+
+      const availability = await getEventByIdParticipant(user);
+      datesList.push(...availability);
     } catch (err) {
       console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
@@ -38,12 +48,6 @@ watchEffect(async () => {
 });
 
 const toast = useToast();
-
-let user = localStorage.getItem('userId');
-if (!user) {
-  user = uuidv4();
-  localStorage.setItem('userId', user);
-}
 
 const eventDate = ref('');
 const formatter = ref({
@@ -103,6 +107,27 @@ const handleAddDate = async () => {
     });
   }
 }
+
+const formatDate = (date: Date) => {
+  return dayjs(date).format('DD/MM/YYYY');
+}
+
+const handleDeleteDate = async (dateId?: string) => {
+  if (!dateId) {
+    return;
+  }
+
+  try {
+    await deleteAvailability(dateId);
+    datesList.splice(0, datesList.length, ...datesList.filter(date => date.id !== dateId));
+  } catch (error) {
+    console.error('Error al eliminar disponibilidad:', error);
+    toast.error(error, {
+      toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
+  }
+}
+
 </script>
 
 <style scoped>
@@ -126,14 +151,16 @@ const handleAddDate = async () => {
 
       <div class="grid grid-cols-3 gap-4">
         <div class="col-span-1 bg-black text-white p-4 border-4 border-black min-w-[250px]">
-          <h3 v-if="datesList.length > 0" class="text-lg font-bold mb-6">Mis Fechas</h3>
+          <h3 v-if="datesList.length > 0" class="text-lg font-bold mb-6">Mis Fechas Propuestas</h3>
           <h3 v-if="datesList.length == 0" class="text-lg font-bold mb-6">No hay fechas ingresadas</h3>
           <ul class="space-y-6">
             <li v-for="date in datesList" :key="date.id" class="mb-4">
               <div class="flex items-center justify-between">
-                <span class="text-gray-300 mr-1">{{ date.start_date }} <span class="font-bold mx-2">-</span> {{
-                  date.end_date }}</span>
-                <button aria-label="Eliminar fecha"
+                <span class="text-gray-300 mr-1">
+                  {{ formatDate(date.start_date) }} <span class="font-bold mx-2">-</span> {{ formatDate(date.end_date)
+                  }}
+                </span>
+                <button aria-label="Eliminar fecha" @click="handleDeleteDate(date.id)"
                   class="text-white-500 hover:text-white-700 flex items-center justify-end ml-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"
                     class="icon icon-tabler icons-tabler-filled icon-tabler-square-rounded-minus">
@@ -150,7 +177,7 @@ const handleAddDate = async () => {
         <div class="col-span-2 p-4 bg-white border-4 border-black">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold">Fechas disponibles del {{ currentYear }}</h3>
-            <button aria-label="Recargar fechas"
+            <!-- <button aria-label="Recargar fechas"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -158,7 +185,7 @@ const handleAddDate = async () => {
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
               </svg>
-            </button>
+            </button> -->
           </div>
           <ul class="space-y-4">
             <li class="text-gray-700 flex">
