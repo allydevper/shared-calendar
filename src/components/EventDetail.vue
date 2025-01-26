@@ -2,9 +2,22 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
+import { createAvailability } from '../services/AvailabilityService';
+import type { AvailabilityModel } from '../models/AvailabilityModel';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { v4 as uuidv4 } from 'uuid';
+
+dayjs.extend(customParseFormat);
+
+let user = localStorage.getItem('userId');
+if (!user) {
+  user = uuidv4();
+  localStorage.setItem('userId', user);
+}
 
 const route = useRoute();
-const uid = route.params.uid;
+const uid = route.params.uid as string;
 console.log(uid);
 
 const eventDate = ref('');
@@ -31,19 +44,34 @@ const options = ref({
   }
 })
 
-const handleAddDate = () => {
+const dDate = (date: Date) => {
+  return date.getFullYear() < currentYear || date.getFullYear() > currentYear
+}
+
+const handleAddDate = async () => {
   if (!eventDate.value) {
     return;
   }
 
-  const dateIni = eventDate.value.split('~')[0].trim();
-  const dateEnd = eventDate.value.split('~')[1].trim();
+  const [startDate, endDate] = eventDate.value.split('~').map(date => dayjs(date.trim(), 'DD/MM/YYYY').toDate());
+  const dateIni = startDate;
+  const dateEnd = endDate;
 
   console.log({ dateIni, dateEnd });
-}
 
-const dDate = (date: Date) => {
-  return date.getFullYear() < currentYear || date.getFullYear() > currentYear
+  try {
+    const newAvailability: AvailabilityModel = {
+      start_date: dateIni,
+      end_date: dateEnd,
+      participant_id: user,
+      event_id: uid
+    };
+
+    await createAvailability(newAvailability);
+    eventDate.value = ''; // Limpiar el campo después de crear
+  } catch (error) {
+    console.error('Error al crear disponibilidad:', error);
+  }
 }
 </script>
 

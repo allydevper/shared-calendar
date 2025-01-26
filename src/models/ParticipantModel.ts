@@ -3,5 +3,4 @@ export interface ParticipantModel {
   eventId: string;
   name: string;
   email?: string;
-  createdAt?: Date;
 } 

@@ -1,8 +1,7 @@
 export interface AvailabilityModel {
   id?: string;
-  participantId: string;
-  eventId: string;
-  startDate: Date;
-  endDate: Date;
-  createdAt?: Date;
+  participant_id: string;
+  event_id: string;
+  start_date: Date;
+  end_date: Date;
 } 
