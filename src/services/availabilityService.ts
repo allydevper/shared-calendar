@@ -23,6 +23,11 @@ export const getEventByIdParticipant = async (participantId: string): Promise<Av
     return response.data;
 };
 
+export const getAvailabilityByEventId = async (eventId: string): Promise<AvailabilityModel[]> => {
+    const response = await axios.get<AvailabilityModel[]>(`${API_URL}event/${eventId}`);
+    return response.data;
+};
+
 export const updateAvailability = async (availabilityId: string, availability: AvailabilityModel): Promise<AvailabilityModel> => {
     const response = await axios.put<AvailabilityModel>(`${API_URL}${availabilityId}`, availability);
     return response.data;
@@ -30,4 +35,4 @@ export const updateAvailability = async (availabilityId: string, availability: A
 
 export const deleteAvailability = async (availabilityId: string): Promise<void> => {
     await axios.delete(`${API_URL}${availabilityId}`);
-}; 
+};
