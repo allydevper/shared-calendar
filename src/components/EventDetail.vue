@@ -2,19 +2,21 @@
 import { reactive, ref, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
-import { createAvailability, deleteAvailability, getEventByIdParticipant } from '../services/AvailabilityService';
+import { createAvailability, deleteAvailability, getAvailabilityByEventId } from '../services/AvailabilityService';
 import type { AvailabilityModel } from '../models/AvailabilityModel';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "vue-toastification";
 import { getEventById } from '../services/EventService';
+import { getCommonDateList } from '../factory/EventDateFactory';
 
 dayjs.extend(customParseFormat);
 
 const route = useRoute();
 const router = useRouter();
 const datesList = reactive<AvailabilityModel[]>([]);
+const commonDatesList = reactive<AvailabilityModel[]>([]);
 const loading = ref(false);
 
 let uid = route.params.uid as string;
@@ -35,9 +37,11 @@ watchEffect(async () => {
       if (!event) {
         throw new Error('No se encontró el evento');
       }
-      
-      const availability = await getEventByIdParticipant(user);
-      datesList.push(...availability);
+
+      const availability = await getAvailabilityByEventId(uid);
+      datesList.push(...availability.filter(f => f.participant_id == user));
+
+      commonDatesList.push(...getCommonDateList(availability));
     } catch (err) {
       console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
@@ -193,10 +197,10 @@ const handleDeleteDate = async (dateId?: string) => {
             </button> -->
           </div>
           <ul class="space-y-4">
-            <li class="text-gray-700 flex">
-              <span class="font-bold w-32">- Enero '25</span>
-              <span class="font-bold mx-2">:</span>
-              <span>1, 2, 3, 4</span>
+            <li v-for="date in commonDatesList" class="text-gray-700 flex">
+              <!-- <span class="font-bold w-32">Fechas</span> -->
+              <!-- <span class="font-bold mx-2">:</span> -->
+              <span>{{ formatDate(date.start_date) }} - {{ formatDate(date.end_date) }}</span>
             </li>
             <!-- Repite para otros elementos de la lista -->
           </ul>
