@@ -109,6 +109,11 @@ const handleAddDate = async () => {
 
     updateParticipantsAndCommonDates(allDatesList);
 
+    eventDate.value = {
+      startDate: "",
+      endDate: "",
+    };
+    
     toast.success('Rango de fechas agregadas con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
