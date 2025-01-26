@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
@@ -8,13 +7,15 @@ const route = useRoute();
 const uid = route.params.uid;
 console.log(uid);
 
-const startDate = ref('');
+const eventDate = ref('');
 const formatter = ref({
   date: 'DD/MM/YYYY',
   month: 'MMM',
 })
 
 const i18n = ref('es-PE')
+
+const currentYear = new Date().getFullYear();
 
 const options = ref({
   shortcuts: {
@@ -29,14 +30,21 @@ const options = ref({
     cancel: 'Cancelar'
   }
 })
+
 const handleAddDate = () => {
-  if (!startDate.value) {
+  if (!eventDate.value) {
     return;
   }
-  console.log(dayjs('2019-01-25').format('DD/MM/YYYY'));
-  console.log('Fecha seleccionada:', startDate.value);
+
+  const dateIni = eventDate.value.split('~')[0].trim();
+  const dateEnd = eventDate.value.split('~')[1].trim();
+
+  console.log({ dateIni, dateEnd });
 }
 
+const dDate = (date: Date) => {
+  return date.getFullYear() < currentYear || date.getFullYear() > currentYear
+}
 </script>
 
 <style scoped>
@@ -49,21 +57,21 @@ const handleAddDate = () => {
 <template>
   <div class="flex items-center justify-center h-screen">
     <div class="max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black">
-      <div class="flex items-center justify-between space-x-4 mb-6">
-        <vue-tailwind-datepicker v-model="startDate" :formatter="formatter" :i18n="i18n" :options="options" placeholder="Selecciona una fecha"
-          input-classes="border-4 border-black px-4 py-2 w-full focus:outline-none focus:ring focus:ring-blue-300" />
-        <button
-          @click="handleAddDate"
+      <div class="flex items-center justify-between space-x-4 mb-4">
+        <vue-tailwind-datepicker v-model="eventDate" :formatter="formatter" :i18n="i18n" :options="options"
+          placeholder="Selecciona una fecha" :disable-date="dDate"
+          input-classes="border-4 border-black px-4 py-2 w-full focus:outline-none focus:ring-black" />
+        <button @click="handleAddDate"
           class="border-4 border-black px-8 py-2 bg-black text-white shadow hover:bg-white hover:text-black font-bold">Agregar</button>
       </div>
 
       <div class="grid grid-cols-3 gap-4">
         <div class="col-span-1 bg-black text-white p-4 border-4 border-black">
-          <h3 class="text-xl font-bold mb-6">Mis Fechas</h3>
+          <h3 class="text-lg font-bold mb-6">Mis Fechas</h3>
           <ul class="space-y-6">
             <li class="mb-4">
               <div class="flex items-center justify-between">
-                <span class="text-gray-300 text-lg">01/01/2025 <br> 02/01/2025</span>
+                <span class="text-gray-300 mr-1">01/01/2025 <span class="font-bold mx-2">-</span> 02/01/2025</span>
                 <button aria-label="Eliminar fecha"
                   class="text-white-500 hover:text-white-700 flex items-center justify-end ml-auto">
                   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"
@@ -81,7 +89,7 @@ const handleAddDate = () => {
 
         <div class="col-span-2 p-4 bg-white border-4 border-black">
           <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold">Fechas disponibles</h3>
+            <h3 class="text-lg font-bold">Fechas disponibles del {{ currentYear }}</h3>
             <button aria-label="Recargar fechas"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -93,7 +101,7 @@ const handleAddDate = () => {
             </button>
           </div>
           <ul class="space-y-4">
-            <li class="text-gray-700 flex text-lg">
+            <li class="text-gray-700 flex">
               <span class="font-bold w-32">- Enero '25</span>
               <span class="font-bold mx-2">:</span>
               <span>1, 2, 3, 4</span>
