@@ -14,21 +14,22 @@ dayjs.extend(customParseFormat);
 
 const route = useRoute();
 const router = useRouter();
+const datesList = reactive<AvailabilityModel[]>([]);
+const loading = ref(false);
+
 let uid = route.params.uid as string;
 
-const loading = ref(false);
 watchEffect(async () => {
   if (uid) {
     try {
       loading.value = true;
       const event = await getEventById(uid);
 
-      if (event) {
-        console.log(event);
-      } else {
-        console.log('No se encontró el evento');
+      if (!event) {
+        throw new Error('No se encontró el evento');
       }
     } catch (err) {
+      console.error('Error al obtener el evento:', err);
       router.push({ name: 'Home' });
     } finally {
       loading.value = false;
@@ -72,8 +73,6 @@ const dDate = (date: Date) => {
   return date.getFullYear() < currentYear || date.getFullYear() > currentYear
 }
 
-const datesList = reactive<AvailabilityModel[]>([]);
-
 const handleAddDate = async () => {
   if (!eventDate.value) {
     return;
@@ -91,9 +90,9 @@ const handleAddDate = async () => {
       event_id: uid
     };
 
-    await createAvailability(newAvailability);
+    const availability = await createAvailability(newAvailability);
     eventDate.value = '';
-    datesList.push(newAvailability);
+    datesList.push(availability);
     toast.success('Rango de fechas agregadas con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
