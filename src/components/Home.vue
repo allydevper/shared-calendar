@@ -19,7 +19,6 @@ const handleCreateEvent = async () => {
 
       const result = await createEvent(event);
       const uid = result.id;
-      console.log(uid);
 
       toast.success('Evento creado con éxito', {
         toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
@@ -30,7 +29,7 @@ const handleCreateEvent = async () => {
     } catch (error) {
       console.error('Error al crear el evento:', error);
       toast.error(error, {
-        toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
+        toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
       });
     }
   } else {

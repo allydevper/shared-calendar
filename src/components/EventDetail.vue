@@ -7,8 +7,10 @@ import type { AvailabilityModel } from '../models/AvailabilityModel';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { v4 as uuidv4 } from 'uuid';
+import { useToast } from "vue-toastification";
 
 dayjs.extend(customParseFormat);
+const toast = useToast();
 
 let user = localStorage.getItem('userId');
 if (!user) {
@@ -18,7 +20,6 @@ if (!user) {
 
 const route = useRoute();
 const uid = route.params.uid as string;
-console.log(uid);
 
 const eventDate = ref('');
 const formatter = ref({
@@ -57,8 +58,6 @@ const handleAddDate = async () => {
   const dateIni = startDate;
   const dateEnd = endDate;
 
-  console.log({ dateIni, dateEnd });
-
   try {
     const newAvailability: AvailabilityModel = {
       start_date: dateIni,
@@ -68,9 +67,15 @@ const handleAddDate = async () => {
     };
 
     await createAvailability(newAvailability);
-    eventDate.value = ''; // Limpiar el campo después de crear
+    eventDate.value = '';
+    toast.success('Rango de fechas agregadas con éxito', {
+      toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
   } catch (error) {
     console.error('Error al crear disponibilidad:', error);
+    toast.error(error, {
+      toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
   }
 }
 </script>
@@ -94,7 +99,7 @@ const handleAddDate = async () => {
       </div>
 
       <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1 bg-black text-white p-4 border-4 border-black">
+        <div class="col-span-1 bg-black text-white p-4 border-4 border-black" style="min-width: 250px;">
           <h3 class="text-lg font-bold mb-6">Mis Fechas</h3>
           <ul class="space-y-6">
             <li class="mb-4">
