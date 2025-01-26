@@ -85,7 +85,7 @@ const dDate = (date: Date) => {
 }
 
 const handleAddDate = async () => {
-  if (!eventDate.value) {
+  if (!eventDate.value.startDate) {
     return;
   }
   const { startDate, endDate } = eventDate.value;
@@ -129,6 +129,9 @@ const handleDeleteDate = async (dateId?: string) => {
   try {
     await deleteAvailability(dateId);
     datesList.splice(0, datesList.length, ...datesList.filter(date => date.id !== dateId));
+    toast.success('Rango de fechas eliminados con éxito', {
+      toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
   } catch (error) {
     console.error('Error al eliminar disponibilidad:', error);
     toast.error(error, {
@@ -185,7 +188,8 @@ const handleDeleteDate = async (dateId?: string) => {
 
         <div class="col-span-2 p-4 bg-white border-4 border-black">
           <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold">Fechas disponibles del {{ currentYear }}</h3>
+            <h3 v-if="commonDatesList.length > 0" class="text-lg font-bold">Fechas disponibles del {{ currentYear }}</h3>
+            <h3 v-if="commonDatesList.length == 0" class="text-lg font-bold">No hay relacionadas</h3>
             <!-- <button aria-label="Recargar fechas"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"

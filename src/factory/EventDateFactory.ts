@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import type { AvailabilityModel } from "../models/AvailabilityModel";
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+dayjs.extend(isSameOrBefore);
 
 export const getCommonDateList = (allAvailabilities: AvailabilityModel[]): AvailabilityModel[] => {
-    // Agrupar disponibilidades por participante
+
     const participantsAvailabilities = allAvailabilities
         .reduce((acc, curr) => {
             const key = curr.participant_id;
@@ -11,10 +13,10 @@ export const getCommonDateList = (allAvailabilities: AvailabilityModel[]): Avail
             return acc;
         }, {} as Record<string, AvailabilityModel[]>);
 
-    // Fusionar rangos de cada participante
+
     const mergedPerParticipant = Object.values(participantsAvailabilities).map(avails => mergeRanges(avails));
 
-    // Calcular intersección de todos los rangos fusionados
+
     if (mergedPerParticipant.length === 0) return [];
 
     let commonRanges = mergedPerParticipant[0];
@@ -26,20 +28,26 @@ export const getCommonDateList = (allAvailabilities: AvailabilityModel[]): Avail
     return commonRanges;
 }
 
+
 const mergeRanges = (ranges: AvailabilityModel[]): AvailabilityModel[] => {
     if (ranges.length === 0) return [];
 
-    // Ordenar rangos por start_date
-    const sorted = [...ranges].sort((a, b) => dayjs(a.start_date).valueOf() - dayjs(b.start_date).valueOf());
-    const merged = [sorted[0]];
+    const sorted = [...ranges].sort((a, b) => 
+        dayjs(a.start_date).valueOf() - dayjs(b.start_date).valueOf()
+    );
+    
+    const merged: AvailabilityModel[] = [sorted[0]];
 
     for (let i = 1; i < sorted.length; i++) {
         const current = sorted[i];
         const lastMerged = merged[merged.length - 1];
 
-        if (dayjs(current.start_date).isBefore(dayjs(current.end_date)) || dayjs(current.start_date).isSame(dayjs(current.end_date))) {
-            // Fusionar rangos superpuestos o adyacentes
-            const newEnd = current.end_date > lastMerged.end_date ? current.end_date : lastMerged.end_date;
+        if (dayjs(current.start_date).isSameOrBefore(dayjs(lastMerged.end_date))) {
+
+            const newEnd = dayjs(current.end_date).isAfter(lastMerged.end_date) 
+                ? current.end_date 
+                : lastMerged.end_date;
+                
             merged[merged.length - 1] = {
                 ...lastMerged,
                 end_date: newEnd,
@@ -57,10 +65,10 @@ const intersectRanges = (rangesA: AvailabilityModel[], rangesB: AvailabilityMode
 
     for (const a of rangesA) {
         for (const b of rangesB) {
-            const start = a.start_date > b.start_date ? a.start_date : b.start_date;
-            const end = a.end_date < b.end_date ? a.end_date : b.end_date;
+            const start = dayjs(a.start_date).isAfter(b.start_date) ? a.start_date : b.start_date;
+            const end = dayjs(a.end_date).isBefore(b.end_date) ? a.end_date : b.end_date;
 
-            if (start <= end) {
+            if (dayjs(start).isSameOrBefore(end)) {
                 result.push({
                     participant_id: '',
                     event_id: '',
@@ -70,5 +78,6 @@ const intersectRanges = (rangesA: AvailabilityModel[], rangesB: AvailabilityMode
             }
         }
     }
-    return result;
+    
+    return mergeRanges(result);
 }
