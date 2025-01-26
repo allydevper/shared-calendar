@@ -56,6 +56,8 @@ watchEffect(async () => {
 
       if (participants.value > 1) {
         commonDatesList.push(...getCommonDateList(availability));
+      } else {
+        commonDatesList.push(...[])
       }
 
     } catch (err) {
@@ -117,11 +119,29 @@ const handleAddDate = async () => {
     };
 
     const availability = await createAvailability(newAvailability);
-    eventDate.value = {
-      startDate: "",
-      endDate: "",
-    }
+    // eventDate.value = {
+    //   startDate: "",
+    //   endDate: "",
+    // }
     datesList.push(availability);
+    allDatesList.push(availability);
+
+    const participantsGroup = allDatesList.reduce((acc, current) => {
+      if (!acc[current.participant_id]) {
+        acc[current.participant_id] = [];
+      }
+      acc[current.participant_id].push(current);
+      return acc;
+    }, {} as Record<string, AvailabilityModel[]>);
+
+    participants.value = Object.keys(participantsGroup).length;
+
+    if (participants.value > 1) {
+      commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList(allDatesList));
+    } else {
+      commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList([]));
+    }
+
     toast.success('Rango de fechas agregadas con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
@@ -146,7 +166,23 @@ const handleDeleteDate = async (dateId?: string) => {
     await deleteAvailability(dateId);
     datesList.splice(0, datesList.length, ...datesList.filter(date => date.id !== dateId));
     allDatesList.splice(0, allDatesList.length, ...allDatesList.filter(date => date.id !== dateId));
-    commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList(allDatesList));
+
+    const participantsGroup = allDatesList.reduce((acc, current) => {
+      if (!acc[current.participant_id]) {
+        acc[current.participant_id] = [];
+      }
+      acc[current.participant_id].push(current);
+      return acc;
+    }, {} as Record<string, AvailabilityModel[]>);
+
+    participants.value = Object.keys(participantsGroup).length;
+
+    if (participants.value > 1) {
+      commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList(allDatesList));
+    } else {
+      commonDatesList.splice(0, commonDatesList.length, ...getCommonDateList([]));
+    }
+
     toast.success('Rango de fechas eliminados con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
