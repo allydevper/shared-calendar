@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "vue-toastification";
-import { getEventById } from '../services/EventService';
+import { getEventById, updateEvent } from '../services/EventService';
 import { getCommonDateList } from '../factory/EventDateFactory';
 
 dayjs.extend(customParseFormat);
@@ -21,6 +21,7 @@ const commonDatesList = reactive<AvailabilityModel[]>([]);
 const loading = ref(false);
 const participants = ref(0);
 const eventTitle = ref('');
+const previousTitle = ref('');
 const isAdmin = ref(false);
 
 let uid = route.params.uid as string;
@@ -42,6 +43,7 @@ watchEffect(async () => {
       }
 
       eventTitle.value = event.name;
+      previousTitle.value = event.name;
       isAdmin.value = event.admin_id == user;
 
       const availability = await getAvailabilityByEventId(uid);
@@ -170,6 +172,23 @@ const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[])
   commonDatesList.splice(0, commonDatesList.length,
     ...getCommonDateList(participants.value > 1 ? availabilityList : []));
 }
+
+const handleUpdateEventTitle = async () => {
+  try {
+    if (previousTitle.value && eventTitle.value) {
+      await updateEvent(uid, { name: eventTitle.value });
+      toast.success('Título del evento actualizado con éxito', {
+        toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
+      });
+      previousTitle.value = eventTitle.value;
+    }
+  } catch (error) {
+    console.error('Error al actualizar el título del evento:', error);
+    toast.error('Error al actualizar el título del evento', {
+      toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
+  }
+};
 </script>
 
 <style scoped>
@@ -185,7 +204,8 @@ const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[])
       :class="['max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black', { 'opacity-50 cursor-not-allowed': loading }]">
       <div v-if="isAdmin" class="flex items-center justify-center">
         <input v-model="eventTitle" type="text"
-          class="uppercase text-center text-2xl font-bold mb-4 border-black focus:outline-none focus:border-black">
+          class="uppercase text-center text-2xl font-bold mb-4 border-black focus:outline-none focus:border-black"
+          @blur="handleUpdateEventTitle">
       </div>
       <h1 v-else class="uppercase text-center text-2xl font-bold mb-4">{{ eventTitle }}</h1>
       <div class="flex items-center justify-between space-x-4 mb-4">
