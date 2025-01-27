@@ -24,6 +24,7 @@ const participants = ref(0);
 const eventData = ref<EventModel>({ name: '' });
 const previousTitle = ref('');
 const isAdmin = ref(false);
+const isRotating = ref(false);
 
 let uid = route.params.uid as string;
 let user = localStorage.getItem('userId') as string;
@@ -172,6 +173,11 @@ const handleDeleteDate = async (dateId?: string) => {
 }
 
 const handleReloadDates = async () => {
+  isRotating.value = true;
+  setTimeout(() => {
+    isRotating.value = false;
+  }, 500);
+
   const availability = await getAvailabilityByEventId(uid);
   allDatesList.push(...availability);
 
@@ -267,7 +273,7 @@ const handleUpdateEventTitle = async () => {
               {{ participants }} participantes
             </h3>
             <h3 v-else class="text-lg font-bold">No hay relacionadas</h3>
-            <button aria-label="Recargar fechas" @click="handleReloadDates"
+            <button aria-label="Recargar fechas" @click="handleReloadDates" :class="{ 'rotate': isRotating }"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
