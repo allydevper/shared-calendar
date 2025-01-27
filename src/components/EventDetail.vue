@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "vue-toastification";
 import { getEventById, updateEvent } from '../services/EventService';
 import { getCommonDateList } from '../factory/EventDateFactory';
+import type { EventModel } from '../models/EventModel';
 
 dayjs.extend(customParseFormat);
 
@@ -20,7 +21,7 @@ const allDatesList = reactive<AvailabilityModel[]>([]);
 const commonDatesList = reactive<AvailabilityModel[]>([]);
 const loading = ref(false);
 const participants = ref(0);
-const eventTitle = ref('');
+const eventData = ref<EventModel>({ name: '' });
 const previousTitle = ref('');
 const isAdmin = ref(false);
 
@@ -42,7 +43,7 @@ watchEffect(async () => {
         throw new Error('No se encontró el evento');
       }
 
-      eventTitle.value = event.name;
+      eventData.value = event;
       previousTitle.value = event.name;
       isAdmin.value = event.admin_id == user;
 
@@ -95,12 +96,23 @@ const dDate = (date: Date) => {
 }
 
 const handleAddDate = async () => {
-  if (!eventDate.value.startDate) {
+  if (!eventDate.value.startDate || !eventDate.value.endDate) {
+    toast.error('Por favor, selecciona un rango de fechas válido.', {
+      toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
     return;
   }
+
   const { startDate, endDate } = eventDate.value;
   const dateIni = dayjs(startDate, 'DD/MM/YYYY').toDate();
   const dateEnd = dayjs(endDate, 'DD/MM/YYYY').toDate();
+
+  if (dateIni > dateEnd) {
+    toast.error('La fecha de inicio no puede ser posterior a la fecha de fin.', {
+      toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
+    });
+    return;
+  }
 
   try {
     const newAvailability: AvailabilityModel = {
@@ -126,7 +138,7 @@ const handleAddDate = async () => {
     });
   } catch (error) {
     console.error('Error al crear disponibilidad:', error);
-    toast.error(error, {
+    toast.error('Error al crear disponibilidad. Por favor, inténtalo de nuevo.', {
       toastClassName: 'bg-rose-700 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
   }
@@ -175,12 +187,12 @@ const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[])
 
 const handleUpdateEventTitle = async () => {
   try {
-    if (previousTitle.value && eventTitle.value) {
-      await updateEvent(uid, { name: eventTitle.value });
+    if (previousTitle.value !== eventData.value.name) {
+      await updateEvent(uid, { ...eventData.value, name: eventData.value.name });
       toast.success('Título del evento actualizado con éxito', {
         toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
       });
-      previousTitle.value = eventTitle.value;
+      previousTitle.value = eventData.value.name;
     }
   } catch (error) {
     console.error('Error al actualizar el título del evento:', error);
@@ -203,11 +215,11 @@ const handleUpdateEventTitle = async () => {
     <div
       :class="['max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black', { 'opacity-50 cursor-not-allowed': loading }]">
       <div v-if="isAdmin" class="flex items-center justify-center">
-        <input v-model="eventTitle" type="text"
+        <input v-model="eventData.name" type="text"
           class="uppercase text-center text-2xl font-bold mb-4 border-black focus:outline-none focus:border-black"
           @blur="handleUpdateEventTitle">
       </div>
-      <h1 v-else class="uppercase text-center text-2xl font-bold mb-4">{{ eventTitle }}</h1>
+      <h1 v-else class="uppercase text-center text-2xl font-bold mb-4">{{ eventData.name }}</h1>
       <div class="flex items-center justify-between space-x-4 mb-4">
         <vue-tailwind-datepicker v-model="eventDate" :formatter="formatter" :i18n="i18n" :options="options"
           placeholder="Selecciona una fecha" :disable-date="dDate"
