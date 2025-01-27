@@ -171,6 +171,13 @@ const handleDeleteDate = async (dateId?: string) => {
   }
 }
 
+const handleReloadDates = async () => {
+  const availability = await getAvailabilityByEventId(uid);
+  allDatesList.push(...availability);
+
+  updateParticipantsAndCommonDates(availability);
+}
+
 const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[]) => {
   const participantsGroup = availabilityList.reduce((acc, current) => {
     if (!acc[current.participant_id]) {
@@ -260,7 +267,7 @@ const handleUpdateEventTitle = async () => {
               {{ participants }} participantes
             </h3>
             <h3 v-else class="text-lg font-bold">No hay relacionadas</h3>
-            <!-- <button aria-label="Recargar fechas"
+            <button aria-label="Recargar fechas" @click="handleReloadDates"
               class="text-black-500 hover:text-black-700 flex items-center justify-end ml-auto">
               <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -268,7 +275,7 @@ const handleUpdateEventTitle = async () => {
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5" />
               </svg>
-            </button> -->
+            </button>
           </div>
           <ul class="space-y-4">
             <li v-for="date in commonDatesList" class="text-gray-700 flex">
