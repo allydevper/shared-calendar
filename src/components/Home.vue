@@ -51,7 +51,7 @@ const handleCreateEvent = async () => {
 <template>
   <div class="flex items-center justify-center h-screen">
     <form class="flex items-center border-2 border-black" @submit.prevent="handleCreateEvent">
-      <input type="text" placeholder="Nuevo Evento" class="input-box px-4 py-2 w-60 focus:outline-none"
+      <input type="text" placeholder="Nuevo Evento" class="uppercase input-box px-4 py-2 w-60 focus:outline-none"
         v-model="newEvent">
       <button type="submit" class="black-button px-6 py-2 font-bold">
         Crear

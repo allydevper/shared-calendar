@@ -17,7 +17,6 @@ dayjs.extend(customParseFormat);
 const route = useRoute();
 const router = useRouter();
 const datesList = reactive<AvailabilityModel[]>([]);
-const allDatesList = reactive<AvailabilityModel[]>([]);
 const commonDatesList = reactive<AvailabilityModel[]>([]);
 const loading = ref(false);
 const participants = ref(0);
@@ -49,7 +48,7 @@ watchEffect(async () => {
       isAdmin.value = event.admin_id == user;
 
       const availability = await getAvailabilityByEventId(uid);
-      allDatesList.push(...availability);
+      await handleReloadDatesByAvailability(availability);
       datesList.push(...availability.filter(f => f.participant_id == user));
 
       updateParticipantsAndCommonDates(availability);
@@ -125,9 +124,7 @@ const handleAddDate = async () => {
 
     const availability = await createAvailability(newAvailability);
     datesList.push(availability);
-    allDatesList.push(availability);
-
-    updateParticipantsAndCommonDates(allDatesList);
+    await handleReloadDates();
 
     eventDate.value = {
       startDate: "",
@@ -157,10 +154,7 @@ const handleDeleteDate = async (dateId?: string) => {
   try {
     await deleteAvailability(dateId);
     datesList.splice(0, datesList.length, ...datesList.filter(date => date.id !== dateId));
-    allDatesList.splice(0, allDatesList.length, ...allDatesList.filter(date => date.id !== dateId));
-
-    updateParticipantsAndCommonDates(allDatesList);
-
+    await handleReloadDates();
     toast.success('Rango de fechas eliminados con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
@@ -179,7 +173,14 @@ const handleReloadDates = async () => {
   }, 500);
 
   const availability = await getAvailabilityByEventId(uid);
-  allDatesList.push(...availability);
+  updateParticipantsAndCommonDates(availability);
+}
+
+const handleReloadDatesByAvailability = async (availability: AvailabilityModel[]) => {
+  isRotating.value = true;
+  setTimeout(() => {
+    isRotating.value = false;
+  }, 500);
 
   updateParticipantsAndCommonDates(availability);
 }
