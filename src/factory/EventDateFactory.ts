@@ -23,7 +23,7 @@ export const getCommonDateList = (allAvailabilities: AvailabilityModel[]): Avail
             if (commonRanges.length === 0) break;
         }
     
-        return commonRanges;
+        return mergeRanges(commonRanges);
 }
 
 const mergeRanges = (ranges: AvailabilityModel[]): AvailabilityModel[] => {

@@ -113,7 +113,7 @@ const handleAddDate = async () => {
       startDate: "",
       endDate: "",
     };
-    
+
     toast.success('Rango de fechas agregadas con éxito', {
       toastClassName: 'bg-gray-800 text-white rounded-lg shadow-lg p-4 flex items-center',
     });
@@ -187,11 +187,11 @@ const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[])
       </div>
 
       <div class="grid grid-cols-3 gap-4">
-        <div class="col-span-1 bg-black text-white p-4 border-4 border-black min-w-[250px]">
+        <div class="col-span-1 bg-black text-white p-4 border-4 border-black min-w-[250px] max-h-[300px] overflow-y-auto">
           <h3 v-if="datesList.length > 0" class="text-lg font-bold mb-6">Mis Fechas Propuestas</h3>
           <h3 v-if="datesList.length == 0" class="text-lg font-bold mb-6">No hay fechas ingresadas</h3>
-          <ul class="space-y-6">
-            <li v-for="date in datesList" :key="date.id" class="mb-4">
+          <ul class="space-y-4">
+            <li v-for="date in datesList" :key="date.id">
               <div class="flex items-center justify-between">
                 <span class="text-gray-300 mr-1">
                   {{ formatDate(date.start_date) }} <span class="font-bold mx-2">-</span> {{ formatDate(date.end_date)
@@ -229,11 +229,8 @@ const updateParticipantsAndCommonDates = (availabilityList: AvailabilityModel[])
           </div>
           <ul class="space-y-4">
             <li v-for="date in commonDatesList" class="text-gray-700 flex">
-              <!-- <span class="font-bold w-32">Fechas</span> -->
-              <!-- <span class="font-bold mx-2">:</span> -->
               <span>{{ formatDate(date.start_date) }} - {{ formatDate(date.end_date) }}</span>
             </li>
-            <!-- Repite para otros elementos de la lista -->
           </ul>
         </div>
       </div>
