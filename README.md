@@ -2,6 +2,8 @@
 
 Un calendario compartido para coordinar fechas disponibles entre varios usuarios. Este proyecto está construido con Vue 3, TypeScript y utiliza Tailwind CSS para el diseño. También se integra con una API para gestionar eventos y disponibilidades.
 
+![alt text](https://raw.githubusercontent.com/allydevper/shared-calendar/refs/heads/main/show.jpg)
+
 ## Características
 
 - Crear y gestionar eventos.
