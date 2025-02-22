@@ -2,15 +2,15 @@
 import { reactive, ref, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import VueTailwindDatepicker from 'vue-tailwind-datepicker';
-import { createAvailability, deleteAvailability, getAvailabilityByEventId } from '../services/AvailabilityService';
 import type { AvailabilityModel } from '../models/AvailabilityModel';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from "vue-toastification";
-import { getEventById, updateEvent } from '../services/EventService';
 import { getCommonDateList } from '../factory/EventDateFactory';
 import type { EventModel } from '../models/EventModel';
+import { getEventById, updateEvent } from '../services/eventService';
+import { createAvailability, deleteAvailability, getAvailabilityByEventId } from '../services/availabilityService';
 
 dayjs.extend(customParseFormat);
 

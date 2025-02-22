@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { createEvent } from '../services/EventService';
+import { createEvent } from '../services/eventService';
 import type { EventModel } from '../models/EventModel';
 import { useToast } from "vue-toastification";
 import { useRouter } from 'vue-router';
