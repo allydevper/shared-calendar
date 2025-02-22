@@ -7,7 +7,7 @@ import Toast, { POSITION, type PluginOptions } from 'vue-toastification'
 import EventDetail from './components/EventDetail.vue'
 import { createWebHistory, createRouter } from 'vue-router'
 import Home from './components/Home.vue'
-import VueTailwindDatepicker from "vue-tailwind-datepicker";
+import 'vue-toastification/dist/index.css';
 
 const options: PluginOptions = {
     timeout: 3000,
@@ -30,6 +30,5 @@ const router = createRouter({
 const app = createApp(App);
 
 app.use(router);
-app.use(VueTailwindDatepicker);
 app.use(Toast, options);
 app.mount('#app');
