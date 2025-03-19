@@ -225,24 +225,24 @@ const handleUpdateEventTitle = async () => {
 </style>
 
 <template>
-  <div class="flex items-center justify-center h-screen">
+  <div class="flex items-center justify-center min-h-screen p-4">
     <div
-      :class="['max-w-6xl mx-auto p-8 bg-white text-black shadow-md border-4 border-black', { 'opacity-50 cursor-not-allowed': loading }]">
+      :class="['w-full max-w-6xl mx-auto p-4 sm:p-8 bg-white text-black shadow-md border-4 border-black', { 'opacity-50 cursor-not-allowed': loading }]">
       <div v-if="isAdmin" class="flex items-center justify-center">
         <input v-model="eventData.name" type="text"
-          class="uppercase text-center text-2xl font-bold mb-4 border-black focus:outline-none focus:border-black"
+          class="uppercase text-center text-lg sm:text-2xl font-bold mb-4 border-black focus:outline-none focus:border-black"
           @blur="handleUpdateEventTitle">
       </div>
-      <h1 v-else class="uppercase text-center text-2xl font-bold mb-4">{{ eventData.name }}</h1>
-      <div class="flex items-center justify-between space-x-4 mb-4">
+      <h1 v-else class="uppercase text-center text-lg sm:text-2xl font-bold mb-4">{{ eventData.name }}</h1>
+      <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
         <vue-tailwind-datepicker v-model="eventDate" :formatter="formatter" :i18n="i18n" :options="options"
           placeholder="Selecciona una fecha" :disable-date="dDate"
           input-classes="border-4 border-black px-4 py-2 w-full focus:outline-none focus:ring-black" />
         <button @click="handleAddDate"
-          class="border-4 border-black px-8 py-2 bg-black text-white shadow hover:bg-white hover:text-black font-bold">Agregar</button>
+          class="border-4 border-black px-8 py-2 bg-black text-white shadow hover:bg-white hover:text-black font-bold w-full sm:w-auto">Agregar</button>
       </div>
 
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
           class="col-span-1 bg-black text-white p-4 border-4 border-black min-w-[250px] max-h-[300px] overflow-y-auto">
           <h3 v-if="datesList.length > 0" class="text-lg font-bold mb-6">Mis Fechas Propuestas</h3>
@@ -268,7 +268,7 @@ const handleUpdateEventTitle = async () => {
           </ul>
         </div>
 
-        <div class="col-span-2 p-4 bg-white border-4 border-black">
+        <div class="col-span-1 sm:col-span-2 p-4 bg-white border-4 border-black">
           <div class="flex justify-between items-center mb-6">
             <h3 v-if="commonDatesList.length > 0" class="text-lg font-bold">Fechas disponibles del {{ currentYear }} de
               {{ participants }} participantes
